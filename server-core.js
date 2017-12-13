@@ -6,7 +6,9 @@ const url = require('url');
 const queryString = require('querystring');
 const commands = {
     GET: get,
-    POST: post
+    POST: post,
+    PATCH: patch,
+    DELETE: deletePost
 };
 
 let messages = [];
@@ -41,12 +43,50 @@ function post(req, res) {
             text += data;
         })
         .on('end', () => {
+            message.id = createID();
             message.from = from;
             message.to = to;
             message.text = JSON.parse(text).text;
             messages.push(message);
             res.end(JSON.stringify(message));
         });
+}
+
+function patch(req, res) {
+    let id = getID(req);
+    let text = '';
+    req
+        .on('data', data => {
+            text += data;
+        })
+        .on('end', () => {
+            messages.forEach(message => {
+                if (message.id === id) {
+                    message.text = JSON.parse(text).text;
+                    message.edited = true;
+                    res.end(JSON.stringify(message));
+                }
+            });
+        });
+}
+
+function deletePost(req, res) {
+    let id = getID(req);
+    messages = messages.filter(message => message.id !== id);
+    res.end(JSON.stringify({ status: 'ok' }));
+}
+
+function getID(req) {
+    let id = url(req.url).split('/')
+        .slice(-1)[0];
+
+    return id;
+}
+
+function createID() {
+
+    return Date.now().toString()
+        .slice(0, 8);
 }
 
 module.exports = server;
