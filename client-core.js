@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports.execute = execute;
-module.exports.isStar = false;
+module.exports.isStar = true;
 
 const chalk = require('chalk');
 const request = require('request');
@@ -59,7 +59,6 @@ function send(options) {
 
 function patch(options) {
     let parametrs = { baseUrl: defaultUrl, url: `/${options.id}`,
-        qs: { from: options.from, to: options.to },
         method: 'PATCH', json: { text: options.text } };
 
     return sendRequest(parametrs)
@@ -68,7 +67,6 @@ function patch(options) {
 
 function deletePost(options) {
     let parametrs = { baseUrl: defaultUrl, url: `/${options.id}`,
-        qs: { from: options.from, to: options.to },
         method: 'DELETE', json: { text: options.text } };
 
     return sendRequest(parametrs)
