@@ -15,8 +15,8 @@ const commands = {
 let messages = [];
 
 server.on('request', (req, res) => {
-    if ((/^\/messages($|\?)/).test(req.url)) {
-        res.setHeader('content-type', 'application/json');
+    if ((/^\/messages(\/|\?|$)/).test(req.url)) {
+        res.setHeader('Content-Type', 'application/json');
         commands[req.method](req, res);
     } else {
         res.statusCode = 404;
@@ -37,14 +37,13 @@ function get(req, res) {
 function post(req, res) {
     let query = url.parse(req.url).query;
     let { from, to } = queryString.parse(query);
-    let message = {};
+    let message = { id: shortid.generate() };
     let text = '';
     req
         .on('data', data => {
             text += data;
         })
         .on('end', () => {
-            message.id = shortid.generate();
             message.from = from;
             message.to = to;
             message.text = JSON.parse(text).text;
@@ -78,8 +77,7 @@ function deletePost(req, res) {
 }
 
 function getID(req) {
-    let id = url(req.url).split('/')
-        .slice(-1)[0];
+    let id = req.url.split('/').slice(-1)[0];
 
     return id;
 }

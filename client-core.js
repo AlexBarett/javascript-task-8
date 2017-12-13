@@ -9,7 +9,7 @@ const defaultUrl = 'http://localhost:8080/messages/';
 const commands = {
     list: get,
     send: send,
-    patch: patch,
+    edit: patch,
     delete: deletePost
 };
 const red = chalk.hex('#f00');
@@ -20,10 +20,12 @@ const yellow = chalk.hex('#ff0');
 function findArgs() {
     let parametrs = require('commander');
     parametrs
+        .option('-v')
         .option('--id [id]', 'id')
         .option('--from [name]', 'from')
         .option('--to [name]', 'to')
         .option('--text [text]', 'text');
+    parametrs.V = false;
     parametrs.id = undefined;
     parametrs.from = undefined;
     parametrs.to = undefined;
@@ -43,7 +45,7 @@ function get(options) {
         method: 'GET', json: true };
 
     return sendRequest(parametrs)
-        .then(messages => messages.map(message => colorisingOut(message)))
+        .then(messages => messages.map(message => colorisingOut(options, message)))
         .then(message => message.join('\n\n'));
 }
 
@@ -52,7 +54,7 @@ function send(options) {
         method: 'POST', json: { text: options.text } };
 
     return sendRequest(parametrs)
-        .then(message => colorisingOut(message));
+        .then(message => colorisingOut(options, message));
 }
 
 function patch(options) {
@@ -61,7 +63,7 @@ function patch(options) {
         method: 'PATCH', json: { text: options.text } };
 
     return sendRequest(parametrs)
-        .then(message => colorisingOut(message));
+        .then(message => colorisingOut(options, message));
 }
 
 function deletePost(options) {
@@ -70,17 +72,16 @@ function deletePost(options) {
         method: 'DELETE', json: { text: options.text } };
 
     return sendRequest(parametrs)
-        .then(message => colorisingOut(message));
+        .then(message => colorisingOut(options, message));
 }
 
-function colorisingOut(message, deleted) {
+function colorisingOut(options, message) {
     let post = '';
-    if (deleted) {
-
+    if (options.args[0] === 'delete') {
         return 'DELETED';
     }
-    if (message.v) {
-        post += (`${yellow('ID')}: ${message.id}\n`);
+    if (options.V) {
+        post += (`${yellow('id')}: ${message.id}\n`);
     }
     if (message.from) {
         post += (`${red('FROM')}: ${message.from}\n`);
