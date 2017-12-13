@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer();
 const url = require('url');
 const queryString = require('querystring');
+const shortid = require('shortid');
 const commands = {
     GET: get,
     POST: post,
@@ -43,7 +44,7 @@ function post(req, res) {
             text += data;
         })
         .on('end', () => {
-            message.id = createID();
+            message.id = shortid.generate();
             message.from = from;
             message.to = to;
             message.text = JSON.parse(text).text;
@@ -81,12 +82,6 @@ function getID(req) {
         .slice(-1)[0];
 
     return id;
-}
-
-function createID() {
-
-    return Date.now().toString()
-        .slice(0, 8);
 }
 
 module.exports = server;
